@@ -133,10 +133,11 @@ const deleteUser = async (req, res) => {
 };
 
 const createAd = async (req, res) => {
-  const { image, title, description } = req.body;
+  const { title, description } = req.body;
+  const image = req.file;
   try {
     const newAd = new Ad({
-      image,
+      image: image.path,
       title,
       description,
     });
@@ -150,6 +151,7 @@ const createAd = async (req, res) => {
 const getAds = async (req, res) => {
   try {
     const ads = await Ad.find({});
+
     res.json(ads);
   } catch (error) {
     console.log(error);
