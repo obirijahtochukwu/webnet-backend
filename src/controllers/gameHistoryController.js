@@ -3,9 +3,7 @@ const GameHistory = require("../models/game-history");
 
 const getGames = async (req, res) => {
   try {
-    const games = await GameHistory.find({ userId: req.params.id }).sort({
-      createdAt: -1,
-    });
+    const games = await GameHistory.find();
     res.json(games);
   } catch (error) {
     res.status(500).json({ error: error.message });
