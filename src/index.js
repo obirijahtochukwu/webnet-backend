@@ -7,7 +7,7 @@ const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const path = require("path");
-const User = require("./model/user.js");
+const User = require("./models/user.js");
 const secret = "secret123";
 
 const URL = "mongodb://localhost:27017";
