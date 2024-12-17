@@ -9,12 +9,7 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "src/server.js",
-      "methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-      "headers": {
-        "key": "Access-Control-Allow-Origin",
-        "value": "http://localhost:3000"
-      }
+      "dest": "src/server.js"
     }
   ]
 }
