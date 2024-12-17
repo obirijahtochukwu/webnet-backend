@@ -5,6 +5,13 @@ const User = require("../models/user");
 const secret = "secret123";
 
 const signup = async (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000"); // Allow all origins
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, OPTIONS"
+  );
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
   try {
     const { name, email, password, language, date_of_birth } = req.body;
 
@@ -39,6 +46,13 @@ const signup = async (req, res) => {
 };
 
 const login = async (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000"); // Allow all origins
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, OPTIONS"
+  );
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
   const { email, password } = req.body;
   const userInfo = await User.findOne({ email });
 
