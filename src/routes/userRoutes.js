@@ -5,7 +5,7 @@ const { plinko } = require("../controllers/plinko");
 
 const router = express.Router();
 
-router.get("/user", getUser);
+router.get("/user/:token", getUser);
 router.get("/game-history/:id", getGames);
 router.post("/add-game", addGame);
 router.post("/plinko", plinko);
