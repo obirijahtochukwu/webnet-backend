@@ -31,6 +31,7 @@ const signup = async (req, res) => {
       name,
       language,
       date_of_birth,
+      token,
     });
   } catch (err) {
     console.error(err);
@@ -51,6 +52,7 @@ const login = async (req, res) => {
       id: userInfo._id,
       email,
       cart: userInfo.cart,
+      token,
     });
   } else {
     res.sendStatus(401);
