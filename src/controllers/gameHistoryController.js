@@ -11,8 +11,6 @@ const getGames = async (req, res) => {
 };
 
 const addGame = async (req, res) => {
-  if (!req.cookies.token) return res.json({});
-
   const { game, result, betAmount, multiplier, time, payout } = req.body;
   try {
     const user = await User.findById(req.body.userId);
