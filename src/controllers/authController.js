@@ -48,10 +48,11 @@ const login = async (req, res) => {
   const passOk = bcrypt.compareSync(password, userInfo.password);
   if (passOk) {
     const token = jwt.sign({ id: userInfo._id, email }, secret);
-    res.cookie("token", token).json({
+    res.cookie("token", token, { httpOnly: true, secure: true }).json({
       id: userInfo._id,
       email,
       cart: userInfo.cart,
+      token,
     });
   } else {
     res.sendStatus(401);
