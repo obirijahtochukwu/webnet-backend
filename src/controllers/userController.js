@@ -4,7 +4,7 @@ const User = require("../models/user");
 const secret = "secret123";
 
 const getUser = async (req, res) => {
-  if (!req.cookies.token) return res.json({});
+  if (!req.cookies.token) return res.json(req.cookies);
 
   try {
     const payload = jwt.verify(req.cookies.token, secret);
@@ -12,7 +12,7 @@ const getUser = async (req, res) => {
 
     if (!userInfo) return res.json({});
 
-    res.json(userInfo);
+    res.json(req.cookies);
   } catch (err) {
     console.error(err);
     res.sendStatus(500);
