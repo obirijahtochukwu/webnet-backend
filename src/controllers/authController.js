@@ -25,7 +25,7 @@ const signup = async (req, res) => {
 
     const token = jwt.sign({ id: savedUser._id, email, name }, secret);
 
-    res.json({
+    res.cookie("token", token).json({
       id: savedUser._id,
       email,
       name,
