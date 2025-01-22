@@ -5,6 +5,7 @@ const corsConfig = require("./middleware/corsConfig");
 
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
 const app = express();
 
@@ -15,5 +16,6 @@ app.use("/image", express.static("image"));
 
 app.use(authRoutes);
 app.use(userRoutes);
+app.use(adminRoutes);
 
 module.exports = app;

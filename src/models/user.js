@@ -7,7 +7,7 @@ const UserSchema = new mongoose.Schema({
   date_of_birth: { type: String },
   language: { type: String },
   balance: { type: Number },
-  cart: { type: Array, default: [] },
+  createdAt: { type: Date, default: Date.now },
 });
 
 module.exports = mongoose.model("User", UserSchema);
