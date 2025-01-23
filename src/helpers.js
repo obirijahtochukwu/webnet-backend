@@ -2,6 +2,7 @@ const { ObjectId } = require("mongoose");
 const { default: mongoose } = require("mongoose");
 const GameHistory = require("./models/game-history");
 const User = require("./models/user");
+const { months } = require("./utils");
 
 const calculateTotalPayouts = (gameHistoryArray) => {
   if (!gameHistoryArray || !Array.isArray(gameHistoryArray)) {
@@ -116,20 +117,7 @@ const userGrowth = async (Users) => {
       $project: {
         month: {
           $arrayElemAt: [
-            [
-              "Jan",
-              "Feb",
-              "Mar",
-              "Apr",
-              "May",
-              "Jun",
-              "Jul",
-              "Aug",
-              "Sep",
-              "Oct",
-              "Nov",
-              "Dec",
-            ],
+            months,
             { $subtract: ["$_id", 1] }, // Convert month number to month name
           ],
         },
@@ -211,12 +199,12 @@ const getInactiveUsers = async (gameHistory) => {
 };
 
 const getPlayer = async (userId) => {
-  console.log(GameHistory);
+  console.log(userId);
 
   const stats = await GameHistory.aggregate([
     {
       $match: {
-        userId: new mongoose.Types.ObjectId("675f06b1bd5a95c05caf81e4"),
+        userId: new mongoose.Types.ObjectId(userId),
       },
     },
     {
@@ -266,6 +254,14 @@ const getPlayer = async (userId) => {
             },
           },
         ],
+        profits: [
+          {
+            $project: {
+              game: "$_id",
+              profit: { $sum: "$profit" },
+            },
+          },
+        ],
         totalPlays: [
           {
             $group: {
@@ -301,11 +297,12 @@ const getPlayer = async (userId) => {
       },
     },
   ]);
+  console.log(stats);
 
-  const averageBet = stats[0].averageBet[0].averageBet || 0;
-  const totalProfit = stats[0].totalProfit[0].totalProfit || 0;
-  const totalPlays = stats[0].totalPlays[0].totalPlays || 0;
-  const totalSession = stats[0].totalSession[0].session || 0;
+  const averageBet = stats[0].averageBet[0]?.averageBet || 0;
+  const totalProfit = stats[0].totalProfit[0]?.totalProfit || 0;
+  const totalPlays = stats[0].totalPlays[0]?.totalPlays || 0;
+  const totalSession = stats[0].totalSession[0]?.session || 0;
 
   return {
     averageBet,
@@ -313,6 +310,7 @@ const getPlayer = async (userId) => {
     totalPlays,
     totalSession,
     games: stats[0].games,
+    profits: stats[0].profits,
   };
 };
 

@@ -51,12 +51,12 @@ const getAdminData = async (req, res) => {
   try {
     const gameHistory = await GameHistory.find({});
     const adminData = await Admin.findOne({});
-    const winRate = await getPlayer("67560932a569bcfe5a2eaaf8");
-    console.log(winRate);
+    // const winRate = await getPlayer("67560932a569bcfe5a2eaaf8");
+    // console.log(winRate);
 
-    // adminData.inactive_users = winRate.length;
-    // await adminData.save();
-    res.status(200).json(winRate);
+    // // adminData.inactive_users = winRate.length;
+    // // await adminData.save();
+    // res.status(200).json(winRate);
   } catch (error) {
     console.error("Error fetching admin data:", error);
     res.status(500).json({ error: "Failed to fetch admin data" });
@@ -65,7 +65,9 @@ const getAdminData = async (req, res) => {
 
 const getPlayerData = async (req, res) => {
   try {
-    const player_deatils = await getPlayer("67560932a569bcfe5a2eaaf8");
+    console.log(req.params.id);
+
+    const player_deatils = await getPlayer(req.params.id);
 
     res.status(200).json(player_deatils);
   } catch (error) {
