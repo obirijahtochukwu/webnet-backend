@@ -6,7 +6,8 @@ const UserSchema = new mongoose.Schema({
   password: { type: String },
   date_of_birth: { type: String },
   language: { type: String },
-  balance: { type: Number },
+  balance: { type: Number, default: 1000 },
+  totalPlays: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
 });
 

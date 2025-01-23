@@ -3,6 +3,7 @@ const {
   getNewSignups,
   addPageView,
   getAdminData,
+  getPlayerData,
 } = require("../controllers/adminController");
 
 const router = express.Router();
@@ -10,5 +11,6 @@ const router = express.Router();
 router.put("/add_page_view", addPageView);
 router.get("/new_signups", getNewSignups);
 router.get("/admin-data", getAdminData);
+router.get("/admin/player", getPlayerData);
 
 module.exports = router;

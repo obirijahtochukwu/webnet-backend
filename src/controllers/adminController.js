@@ -1,7 +1,16 @@
 const User = require("../models/user");
 const Admin = require("../models/admin");
 const GameHistory = require("../models/game-history");
-const { calculateTotalPayouts } = require("../helpers");
+const {
+  calculateTotalPayouts,
+  userGrowth,
+  calculateAverageBetSize,
+  calculatePlayersWinRate,
+  calculatePlayersSessions,
+  calculateGameSportStart,
+  getInactiveUsers,
+  getPlayer,
+} = require("../helpers");
 
 const getNewSignups = async (req, res) => {
   try {
@@ -42,46 +51,27 @@ const getAdminData = async (req, res) => {
   try {
     const gameHistory = await GameHistory.find({});
     const adminData = await Admin.findOne({});
-    const limit = 4; // Optional query parameter for the number of top players to return
-    const topPlayers = await GameHistory.aggregate([
-      {
-        $group: {
-          _id: "$userId", // Group by userId
-          username: { $first: "$username" }, // Retrieve the username
-          // totalBets: { $sum: "$betAmount" }, // Sum up the total bet amount
-          betCount: { $count: {} }, // Count the number of bets placed
-        },
-      },
-      {
-        $sort: { totalBets: -1 }, // Sort players by total bet amount in descending order
-      },
-      {
-        $limit: limit, // Limit the results to the top N players
-      },
-    ]);
+    const winRate = await getPlayer("67560932a569bcfe5a2eaaf8");
+    console.log(winRate);
 
-    // Populate email from the User model
-    const populatedPlayers = await User.populate(topPlayers, {
-      path: "_id", // _id corresponds to userId in the User model
-      select: "email", // Only include the email field from the User model
-    });
-
-    // Format the response to include both username and email
-    const result = populatedPlayers.map((player) => ({
-      userId: player._id,
-      username: player.username,
-      email: player._id.email, // _id contains the user document after population
-      totalBets: player.totalBets,
-      betCount: player.betCount,
-    }));
-    adminData.topPlayers = result;
-    await adminData.save();
-    // res.status(200).json(lossesByDate);
-    res.json(result);
+    // adminData.inactive_users = winRate.length;
+    // await adminData.save();
+    res.status(200).json(winRate);
   } catch (error) {
     console.error("Error fetching admin data:", error);
     res.status(500).json({ error: "Failed to fetch admin data" });
   }
 };
 
-module.exports = { addPageView, getAdminData, getNewSignups };
+const getPlayerData = async (req, res) => {
+  try {
+    const player_deatils = await getPlayer("67560932a569bcfe5a2eaaf8");
+
+    res.status(200).json(player_deatils);
+  } catch (error) {
+    console.error("Error fetching admin data:", error);
+    res.status(500).json({ error: "Failed to fetch admin data" });
+  }
+};
+
+module.exports = { addPageView, getAdminData, getNewSignups, getPlayerData };
