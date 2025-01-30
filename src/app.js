@@ -10,7 +10,7 @@ const adminRoutes = require("./routes/adminRoutes");
 const app = express();
 
 app.use(cookieParser());
-app.use(bodyParser.json({ extended: true }));
+app.use(bodyParser.json({ extended: true, limit: "10mb" }));
 app.use(corsConfig);
 app.use("/image", express.static("image"));
 

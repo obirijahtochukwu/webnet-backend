@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const Admin = require("../models/admin");
 const GameHistory = require("../models/game-history");
+const Token = require("../models/claim-token");
 const {
   calculateTotalPayouts,
   userGrowth,
@@ -76,4 +77,51 @@ const getPlayerData = async (req, res) => {
   }
 };
 
-module.exports = { addPageView, getAdminData, getNewSignups, getPlayerData };
+const orderList = async (req, res) => {
+  try {
+    const orders = await Token.find();
+
+    res.json(orders);
+  } catch (err) {
+    console.error(err);
+    res.sendStatus(500);
+  }
+};
+
+const approveToken = async (req, res) => {
+  try {
+    const token = await Token.findById(req.body._id);
+    const user = await User.findById(req.body.userId);
+    console.log(req.body.userId);
+
+    token.status = "Approved";
+    console.log(user);
+    user.balance += token.amount;
+
+    await user.save();
+    await token.save();
+    res.status(201).json(token);
+  } catch (err) {
+    console.error(err);
+    res.sendStatus(500);
+  }
+};
+
+const deleteUser = async (req, res) => {
+  try {
+    // Find and delete the user document
+    const deletedUser = await User.findByIdAndDelete(req.params.id);
+
+    if (!deletedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    console.log(deletedUser);
+
+    res.json({ message: "User deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error deleting user" });
+  }
+};
+
+module.exports = { addPageView, getAdminData, getNewSignups, getPlayerData, orderList, approveToken, deleteUser };

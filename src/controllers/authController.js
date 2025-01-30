@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
+const Admin = require("../models/admin");
 
 const secret = "secret123";
 
@@ -66,8 +67,41 @@ const login = async (req, res) => {
   }
 };
 
+const adminSignup = async (req, res) => {
+  try {
+    const { name, email, password, role } = req.body;
+
+    const existingAdmin = await Admin.findOne({ email });
+    if (existingAdmin) {
+      return res.send({ message: "Admin already exists", Admin: existingAdmin });
+    }
+
+    const hashedPassword = bcrypt.hashSync(password, 10);
+    const newAdmin = new Admin({
+      email,
+      password: hashedPassword,
+      name,
+      role,
+    });
+    const savedAdmin = await newAdmin.save();
+
+    const token = jwt.sign({ id: savedAdmin._id, email, name }, secret);
+
+    res.cookie("token", token).json({
+      id: savedAdmin._id,
+      email,
+      name,
+      role,
+      token,
+    });
+  } catch (err) {
+    console.error(err);
+    res.sendStatus(500);
+  }
+};
+
 const logout = (req, res) => {
   res.cookie("token", "").send();
 };
 
-module.exports = { signup, login, logout };
+module.exports = { signup, login, logout, adminSignup };

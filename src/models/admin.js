@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 const User = require("./user");
 
 const AdminSchema = new mongoose.Schema({
+  name: { type: String, unique: true },
+  email: { type: String, unique: true },
+  password: { type: String },
+  role: { type: String },
   page_views: { type: Number, default: 0 },
   monthly_users: { type: Number, default: 0 },
   new_signups: { type: Number, default: 0 },
@@ -16,6 +20,7 @@ const AdminSchema = new mongoose.Schema({
   total_players_session: { type: Number, default: 0 },
   game_and_sport_stats: { type: Array, default: [] },
   inactive_users: { type: Number, default: 0 },
+  createdAt: { type: Date, default: Date.now },
 });
 
 AdminSchema.pre("save", async function (next) {

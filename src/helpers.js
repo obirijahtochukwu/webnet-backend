@@ -6,17 +6,11 @@ const { months } = require("./utils");
 
 const calculateTotalPayouts = (gameHistoryArray) => {
   if (!gameHistoryArray || !Array.isArray(gameHistoryArray)) {
-    throw new Error(
-      "Invalid input: Please provide an array of GameHistory documents."
-    );
+    throw new Error("Invalid input: Please provide an array of GameHistory documents.");
   }
 
   const totalPayouts = gameHistoryArray.reduce((acc, gameHistory) => {
-    if (
-      gameHistory.result === "win" &&
-      typeof gameHistory.payout === "number" &&
-      !isNaN(gameHistory.payout)
-    ) {
+    if (gameHistory.result === "win" && typeof gameHistory.payout === "number" && !isNaN(gameHistory.payout)) {
       return acc + gameHistory.payout;
     } else {
       return acc;
@@ -41,20 +35,7 @@ const calculateAdminProfit = async (GameHistory, Admin) => {
       $project: {
         month: {
           $arrayElemAt: [
-            [
-              "Jan",
-              "Feb",
-              "Mar",
-              "Apr",
-              "May",
-              "Jun",
-              "Jul",
-              "Aug",
-              "Sep",
-              "Oct",
-              "Nov",
-              "Dec",
-            ],
+            ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
             { $subtract: ["$_id", 1] }, // Convert month number to month name
           ],
         },
@@ -135,8 +116,7 @@ const userGrowth = async (Users) => {
 const calculateAverageBetSize = (gameHistory) => {
   console.log(gameHistory[0]);
   const betCount = gameHistory.length;
-  const amount =
-    gameHistory.reduce((acc, item) => acc + item.betAmount, 0) / betCount;
+  const amount = gameHistory.reduce((acc, item) => acc + item.betAmount, 0) / betCount;
   return Math.round(amount);
 };
 
@@ -171,18 +151,10 @@ const calculateGameSportStart = async () => {
         totalPayout: 1,
         averageBetSize: 1,
         winRate: {
-          $cond: [
-            { $eq: ["$totalPlays", 0] },
-            0,
-            { $multiply: [{ $divide: ["$winCount", "$totalPlays"] }, 100] },
-          ],
+          $cond: [{ $eq: ["$totalPlays", 0] }, 0, { $multiply: [{ $divide: ["$winCount", "$totalPlays"] }, 100] }],
         },
         lossRate: {
-          $cond: [
-            { $eq: ["$totalPlays", 0] },
-            0,
-            { $multiply: [{ $divide: ["$lossCount", "$totalPlays"] }, 100] },
-          ],
+          $cond: [{ $eq: ["$totalPlays", 0] }, 0, { $multiply: [{ $divide: ["$lossCount", "$totalPlays"] }, 100] }],
         },
         activePlayers: { $size: "$uniquePlayers" }, // Count of unique players
       },
@@ -198,9 +170,23 @@ const getInactiveUsers = async (gameHistory) => {
   return userWithOutplays;
 };
 
-const getPlayer = async (userId) => {
-  console.log(userId);
+const calculatePlayerLoss = async (userId) => {
+  const loss = await GameHistory.aggregate([
+    {
+      $match: { userId: new mongoose.Types.ObjectId(userId), result: "loss" }, //
+    },
+    {
+      $group: {
+        _id: "$userId",
+        loss: { $sum: "$betAmount" },
+      },
+    },
+  ]);
 
+  return loss[0]?.loss || 0;
+};
+
+const getPlayer = async (userId) => {
   const stats = await GameHistory.aggregate([
     {
       $match: {
@@ -244,10 +230,7 @@ const getPlayer = async (userId) => {
                   { $eq: ["$totalPlays", 0] },
                   0,
                   {
-                    $multiply: [
-                      { $divide: ["$lossCount", "$totalPlays"] },
-                      100,
-                    ],
+                    $multiply: [{ $divide: ["$lossCount", "$totalPlays"] }, 100],
                   },
                 ],
               },
@@ -286,6 +269,7 @@ const getPlayer = async (userId) => {
             },
           },
         ],
+
         averageBet: [
           {
             $group: {
@@ -297,21 +281,14 @@ const getPlayer = async (userId) => {
       },
     },
   ]);
-  console.log(stats);
+  const totalLoss = await calculatePlayerLoss(userId);
 
   const averageBet = stats[0].averageBet[0]?.averageBet || 0;
   const totalProfit = stats[0].totalProfit[0]?.totalProfit || 0;
   const totalPlays = stats[0].totalPlays[0]?.totalPlays || 0;
   const totalSession = stats[0].totalSession[0]?.session || 0;
 
-  return {
-    averageBet,
-    totalProfit,
-    totalPlays,
-    totalSession,
-    games: stats[0].games,
-    profits: stats[0].profits,
-  };
+  return { totalLoss, averageBet, totalProfit, totalPlays, totalSession, games: stats[0].games, profits: stats[0].profits };
 };
 
 module.exports = {

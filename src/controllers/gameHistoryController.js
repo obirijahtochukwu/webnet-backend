@@ -14,7 +14,6 @@ const addGame = async (req, res) => {
   const { game, result, betAmount, multiplier, time, payout } = req.body;
   try {
     const user = await User.findById(req.body.userId);
-    console.log(user);
 
     if (!user) return res.status(404).json({ error: "User not found" });
 
