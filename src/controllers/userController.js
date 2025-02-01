@@ -2,7 +2,20 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const Admin = require("../models/admin");
 const Token = require("../models/claim-token");
-const { getPlayer } = require("../helpers");
+const GameHistory = require("../models/game-history");
+
+const {
+  getPlayer,
+  getInactiveUsers,
+  calculateTopPlayers,
+  getNewSignups,
+  userGrowth,
+  calculateGameSportStart,
+  calculateAverageBetSize,
+  calculatePlayersWinRate,
+  getTop3Games,
+  calculateAdminProfit,
+} = require("../helpers");
 
 const secret = "secret123";
 
@@ -13,7 +26,17 @@ const getUser = async (req, res) => {
     try {
       if (req.params.token == "admin") {
         const adminData = await Admin.findOne({});
+        const gameHistory = await GameHistory.find();
         const users = await User.find();
+        const inactive_users = await getInactiveUsers();
+        const topPlayers = await calculateTopPlayers();
+        const new_signups = await getNewSignups();
+        const user_growth = await userGrowth();
+        const game_and_sport_stats = await calculateGameSportStart();
+        const average_bet_size = calculateAverageBetSize(gameHistory);
+        const players_win_rate = calculatePlayersWinRate(gameHistory);
+        const monthly_profit = await calculateAdminProfit();
+        const topGames = await getTop3Games();
 
         if (!adminData) {
           return res.status(404).json({ message: "Admin data not found" });
@@ -25,17 +48,25 @@ const getUser = async (req, res) => {
           name: "John Carter",
           email: "obirijah@gmail.com",
           token: "admin",
+          average_bet_size,
+          game_and_sport_stats,
+          inactive_users,
+          monthly_profit,
+          new_signups,
+          topGames,
+          topPlayers,
+          players_win_rate,
+          // players: topPlayers,
+          user_growth,
         });
       } else {
-        console.log("req.params.token");
-
         const payload = jwt.verify(req.params.token, secret);
-        const userInfo = await User.findById(payload.id);
-        const ho = userInfo.toObject({ virtuals: true });
+        const user = await User.findById(payload.id);
+        const userInfo = user.toObject({ virtuals: true });
         if (!userInfo) return res.json({});
         const player_deatils = await getPlayer(payload.id);
 
-        res.json({ ...player_deatils, ...ho });
+        res.json({ ...player_deatils, ...userInfo });
       }
     } catch (err) {
       console.error(err);

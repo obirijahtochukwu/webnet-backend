@@ -20,8 +20,20 @@ const calculateTotalPayouts = (gameHistoryArray) => {
   return totalPayouts;
 };
 
-const calculateAdminProfit = async (GameHistory, Admin) => {
-  const lossesByDate = await GameHistory.aggregate([
+const getNewSignups = async (req, res) => {
+  const today = new Date();
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() - today.getDay());
+
+  const thisWeekSignups = await User.countDocuments({
+    createdAt: { $gte: startOfWeek },
+  });
+
+  return thisWeekSignups;
+};
+
+const calculateAdminProfit = async () => {
+  const profit = await GameHistory.aggregate([
     {
       $match: { result: "loss" }, // Only include documents where the result is "loss"
     },
@@ -47,47 +59,86 @@ const calculateAdminProfit = async (GameHistory, Admin) => {
     },
   ]);
 
-  return lossesByDate;
+  return profit;
 };
 
-const calculateTopPlayers = async (GameHistory, Admin, User) => {
-  const limit = 100;
-  const topPlayers = await GameHistory.aggregate([
+const getTop3Games = async () => {
+  const topGames = await GameHistory.aggregate([
     {
       $group: {
-        _id: "$userId", // Group by userId
-        username: { $first: "$username" }, // Retrieve the username
-        // totalBets: { $sum: "$betAmount" }, // Sum up the total bet amount
-        betCount: { $count: {} }, // Count the number of bets placed
+        _id: "$game", // Group by game name
+        count: { $sum: 1 }, // Count occurrences of each game
       },
     },
     {
-      $sort: { totalBets: -1 }, // Sort players by total bet amount in descending order
+      $sort: { count: -1 }, // Sort by count in descending order
     },
     {
-      $limit: limit, // Limit the results to the top N players
+      $limit: 3, // Limit to top 3
+    },
+    {
+      $project: {
+        // Optional: Only include game name and count
+        _id: 0, // Exclude _id
+        game: "$_id", // Rename _id to game
+        count: 1,
+      },
     },
   ]);
 
-  // Populate email from the User model
-  const populatedPlayers = await User.populate(topPlayers, {
-    path: "_id", // _id corresponds to userId in the User model
-    select: "email", // Only include the email field from the User model
-  });
-
-  // Format the response to include both username and email
-  const result = populatedPlayers.map((player) => ({
-    userId: player._id,
-    username: player.username,
-    email: player._id.email, // _id contains the user document after population
-    totalBets: player.totalBets,
-    betCount: player.betCount,
-  }));
-  return result;
+  return topGames;
 };
 
-const userGrowth = async (Users) => {
-  const users = await Users.aggregate([
+const calculateTopPlayers = async () => {
+  const limit = 3;
+
+  const topPlayers = await GameHistory.aggregate([
+    {
+      $group: {
+        _id: "$userId",
+        username: { $first: "$username" },
+        totalBets: { $sum: "$betAmount" },
+        betCount: { $count: {} },
+      },
+    },
+    {
+      $sort: { totalBets: -1 },
+    },
+    {
+      $limit: limit,
+    },
+    {
+      // Lookup user details (including email)
+      $lookup: {
+        from: "users", // Name of your User collection (important!)
+        localField: "_id",
+        foreignField: "_id",
+        as: "userDetails",
+      },
+    },
+    {
+      // Unwind the userDetails array (since it's an array of 1)
+      $unwind: "$userDetails",
+    },
+    {
+      // Project the desired fields
+      $project: {
+        _id: 1, // Include _id (userId)
+        username: 1,
+        totalBets: 1,
+        betCount: 1,
+        email: "$userDetails.email", // Access email from userDetails
+        profileImage: "$userDetails.profileImage", // Access email from userDetails
+      },
+    },
+  ]);
+  console.log(topPlayers);
+
+  return topPlayers;
+};
+
+const userGrowth = async () => {
+  const users = await User.aggregate([
     {
       $group: {
         _id: { $month: "$createdAt" },
@@ -114,7 +165,6 @@ const userGrowth = async (Users) => {
 };
 
 const calculateAverageBetSize = (gameHistory) => {
-  console.log(gameHistory[0]);
   const betCount = gameHistory.length;
   const amount = gameHistory.reduce((acc, item) => acc + item.betAmount, 0) / betCount;
   return Math.round(amount);
@@ -164,10 +214,10 @@ const calculateGameSportStart = async () => {
   return stats;
 };
 
-const getInactiveUsers = async (gameHistory) => {
+const getInactiveUsers = async () => {
   const userWithplays = await GameHistory.distinct("userId");
   const userWithOutplays = await User.find({ _id: { $nin: userWithplays } });
-  return userWithOutplays;
+  return userWithOutplays.length;
 };
 
 const calculatePlayerLoss = async (userId) => {
@@ -237,14 +287,7 @@ const getPlayer = async (userId) => {
             },
           },
         ],
-        profits: [
-          {
-            $project: {
-              game: "$_id",
-              profit: { $sum: "$profit" },
-            },
-          },
-        ],
+
         totalPlays: [
           {
             $group: {
@@ -288,7 +331,10 @@ const getPlayer = async (userId) => {
   const totalPlays = stats[0].totalPlays[0]?.totalPlays || 0;
   const totalSession = stats[0].totalSession[0]?.session || 0;
 
-  return { totalLoss, averageBet, totalProfit, totalPlays, totalSession, games: stats[0].games, profits: stats[0].profits };
+  const user = await User.findById(userId);
+  const userInfo = user.toObject({ virtuals: true });
+
+  return { ...userInfo, totalLoss, averageBet, totalProfit, totalPlays, totalSession, games: stats[0].games };
 };
 
 module.exports = {
@@ -301,4 +347,7 @@ module.exports = {
   calculateGameSportStart,
   getInactiveUsers,
   getPlayer,
+  calculateTopPlayers,
+  getNewSignups,
+  getTop3Games,
 };

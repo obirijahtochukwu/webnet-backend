@@ -1,4 +1,4 @@
-const outcomes = require("../utils");
+const { outcomes } = require("../utils");
 
 const TOTAL_DROPS = 16;
 
@@ -33,15 +33,13 @@ const plinko = (req, res) => {
       pattern.push("L");
     }
   }
+  console.log(outcome);
 
   const multiplier = MULTIPLIERS[outcome];
   const possiblieOutcomes = outcomes[outcome];
 
   res.send({
-    point:
-      possiblieOutcomes[
-        Math.floor(Math.random() * possiblieOutcomes.length || 0)
-      ],
+    point: possiblieOutcomes[Math.floor(Math.random() * possiblieOutcomes.length || 0)],
     multiplier,
     pattern,
   });

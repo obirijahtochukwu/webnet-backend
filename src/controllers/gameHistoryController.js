@@ -1,4 +1,5 @@
 const User = require("../models/user");
+const Admin = require("../models/admin");
 const GameHistory = require("../models/game-history");
 
 const getGames = async (req, res) => {
@@ -32,8 +33,15 @@ const addGame = async (req, res) => {
       payout,
     });
 
-    if (result === "win") user.balance += betAmount;
-    if (result === "loss") user.balance -= betAmount;
+    if (result === "win") {
+      user.balance += betAmount;
+      const admin = await Admin.updateMany({}, { $inc: { total_payouts: payout } });
+    }
+    if (result === "loss") {
+      user.balance -= betAmount;
+      const admin = await Admin.updateMany({}, { $inc: { profit: betAmount } });
+    }
+    const admin = await Admin.updateMany({}, { $inc: { total_players_session: 1 } });
 
     await user.save();
     await gameHistory.save();

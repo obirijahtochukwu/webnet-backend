@@ -32,15 +32,10 @@ const getNewSignups = async (req, res) => {
 
 const addPageView = async (req, res) => {
   try {
-    let admin = await Admin.findOne();
+    let admin = await Admin.updateMany({}, { $inc: { page_views: 1 } });
 
-    const currentPageViews = parseInt(admin.page_views || "0", 10);
-    admin.page_views = (currentPageViews + 1).toString();
-
-    await admin.save();
     res.status(200).json({
       message: "Page views updated successfully",
-      data: admin,
     });
   } catch (error) {
     console.error("Error updating page views:", error);
