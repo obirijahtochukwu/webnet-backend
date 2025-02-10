@@ -3,6 +3,7 @@ const { default: mongoose } = require("mongoose");
 const GameHistory = require("./models/game-history");
 const User = require("./models/user");
 const { months } = require("./utils");
+const Admin = require("./models/admin");
 
 const calculateTotalPayouts = (gameHistoryArray) => {
   if (!gameHistoryArray || !Array.isArray(gameHistoryArray)) {
@@ -236,6 +237,17 @@ const calculatePlayerLoss = async (userId) => {
   return loss[0]?.loss || 0;
 };
 
+const getTermsOfServices = async (req, res) => {
+  try {
+    const admin = await Admin.findOne({});
+    res.status(201).json({
+      terms_of_service: admin.terms_of_service,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 const getPlayer = async (userId) => {
   const stats = await GameHistory.aggregate([
     {
@@ -333,8 +345,17 @@ const getPlayer = async (userId) => {
 
   const user = await User.findById(userId);
   const userInfo = user.toObject({ virtuals: true });
+  console.log(admin);
 
-  return { ...userInfo, totalLoss, averageBet, totalProfit, totalPlays, totalSession, games: stats[0].games };
+  return {
+    ...userInfo,
+    totalLoss,
+    averageBet,
+    totalProfit,
+    totalPlays,
+    totalSession,
+    games: stats[0].games,
+  };
 };
 
 module.exports = {
@@ -350,4 +371,5 @@ module.exports = {
   calculateTopPlayers,
   getNewSignups,
   getTop3Games,
+  getTermsOfServices,
 };

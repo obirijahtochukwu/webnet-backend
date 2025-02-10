@@ -119,4 +119,23 @@ const deleteUser = async (req, res) => {
   }
 };
 
-module.exports = { addPageView, getAdminData, getNewSignups, getPlayerData, orderList, approveToken, deleteUser };
+const updateTermsOfServices = async (req, res) => {
+  const { terms } = req.body;
+  try {
+    const admin = await Admin.updateMany({}, { terms_of_service: terms });
+    res.status(201).json({ message: "terms of services updated successfully" });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports = {
+  addPageView,
+  getAdminData,
+  getNewSignups,
+  getPlayerData,
+  orderList,
+  approveToken,
+  deleteUser,
+  updateTermsOfServices,
+};
