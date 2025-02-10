@@ -345,7 +345,6 @@ const getPlayer = async (userId) => {
 
   const user = await User.findById(userId);
   const userInfo = user.toObject({ virtuals: true });
-  console.log(admin);
 
   return {
     ...userInfo,
