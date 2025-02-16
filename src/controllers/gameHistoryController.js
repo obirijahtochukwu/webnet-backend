@@ -42,6 +42,7 @@ const addGame = async (req, res) => {
       const admin = await Admin.updateMany({}, { $inc: { profit: betAmount } });
     }
     const admin = await Admin.updateMany({}, { $inc: { total_players_session: 1 } });
+    user.totalPlays += 1;
 
     await user.save();
     await gameHistory.save();

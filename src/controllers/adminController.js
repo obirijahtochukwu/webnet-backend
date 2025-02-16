@@ -61,8 +61,6 @@ const getAdminData = async (req, res) => {
 
 const getPlayerData = async (req, res) => {
   try {
-    console.log(req.params.id);
-
     const player_deatils = await getPlayer(req.params.id);
 
     res.status(200).json(player_deatils);
@@ -96,6 +94,20 @@ const approveToken = async (req, res) => {
     await user.save();
     await token.save();
     res.status(201).json(token);
+  } catch (err) {
+    console.error(err);
+    res.sendStatus(500);
+  }
+};
+
+const giftToken = async (req, res) => {
+  const { _id, amount } = req.body;
+  try {
+    const user = await User.findById(_id);
+    user.balance += amount;
+
+    await user.save();
+    res.status(201).json({ user, amount });
   } catch (err) {
     console.error(err);
     res.sendStatus(500);
@@ -138,4 +150,5 @@ module.exports = {
   approveToken,
   deleteUser,
   updateTermsOfServices,
+  giftToken,
 };

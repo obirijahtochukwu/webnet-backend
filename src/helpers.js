@@ -133,7 +133,6 @@ const calculateTopPlayers = async () => {
       },
     },
   ]);
-  console.log(topPlayers);
 
   return topPlayers;
 };
