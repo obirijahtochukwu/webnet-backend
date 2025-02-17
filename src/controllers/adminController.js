@@ -2,6 +2,7 @@ const User = require("../models/user");
 const Admin = require("../models/admin");
 const GameHistory = require("../models/game-history");
 const Token = require("../models/claim-token");
+const Ad = require("../models/ads");
 const {
   calculateTotalPayouts,
   userGrowth,
@@ -131,6 +132,21 @@ const deleteUser = async (req, res) => {
   }
 };
 
+const createAd = async (req, res) => {
+  const { image, title, description } = req.body;
+  try {
+    const newAd = new Ad({
+      image,
+      title,
+      description,
+    });
+    const savedAd = await newAd.save();
+    res.json(savedAd);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 const updateTermsOfServices = async (req, res) => {
   const { terms } = req.body;
   try {
@@ -151,4 +167,5 @@ module.exports = {
   deleteUser,
   updateTermsOfServices,
   giftToken,
+  createAd,
 };

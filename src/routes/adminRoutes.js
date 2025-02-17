@@ -9,6 +9,7 @@ const {
   deleteUser,
   updateTermsOfServices,
   giftToken,
+  createAd,
 } = require("../controllers/adminController");
 
 const router = express.Router();
@@ -20,6 +21,7 @@ router.get("/order-list", orderList);
 router.get("/admin/player/:id", getPlayerData);
 router.put("/approve-token", approveToken);
 router.put("/gift-token", giftToken);
+router.post("/create-ad", createAd);
 router.put("/update-terms-of-ervices", updateTermsOfServices);
 router.delete("/delete-user/:id", deleteUser);
 
