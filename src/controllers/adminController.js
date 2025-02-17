@@ -147,6 +147,15 @@ const createAd = async (req, res) => {
   }
 };
 
+const getAds = async (req, res) => {
+  try {
+    const ads = await Ad.find({});
+    res.json(ads);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 const updateTermsOfServices = async (req, res) => {
   const { terms } = req.body;
   try {
@@ -168,4 +177,5 @@ module.exports = {
   updateTermsOfServices,
   giftToken,
   createAd,
+  getAds,
 };
