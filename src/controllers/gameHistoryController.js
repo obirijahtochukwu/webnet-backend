@@ -5,9 +5,9 @@ const GameHistory = require("../models/game-history");
 const getGames = async (req, res) => {
   try {
     const games = await GameHistory.find();
-    res.json(games);
+    res.send(games);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).send({ error: error.message });
   }
 };
 
@@ -16,7 +16,7 @@ const addGame = async (req, res) => {
   try {
     const user = await User.findById(req.body.userId);
 
-    if (!user) return res.status(404).json({ error: "User not found" });
+    if (!user) return res.status(404).send({ error: "User not found" });
 
     if (isNaN(user.balance)) {
       user.balance = 100;
@@ -47,9 +47,9 @@ const addGame = async (req, res) => {
     await user.save();
     await gameHistory.save();
 
-    res.status(201).json(gameHistory);
+    res.status(201).send(gameHistory);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).send({ error: error.message });
   }
 };
 

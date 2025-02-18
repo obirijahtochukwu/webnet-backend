@@ -7,7 +7,7 @@ const secret = "secret123";
 
 const signup = async (req, res) => {
   try {
-    const { name, email, password, language, date_of_birth, profileImage } = req.body;
+    const { name, email, password, language, date_of_birth } = req.body;
 
     const existingUser = await User.findOne({ email });
 
@@ -22,13 +22,12 @@ const signup = async (req, res) => {
       name,
       language,
       date_of_birth,
-      profileImage,
     });
     const savedUser = await newUser.save();
 
     const token = jwt.sign({ id: savedUser._id, email, name }, secret);
 
-    res.cookie("token", token).json({
+    res.cookie("token", token).send({
       id: savedUser._id,
       email,
       name,
@@ -45,7 +44,7 @@ const signup = async (req, res) => {
 const login = async (req, res) => {
   const { email, password } = req.body;
   if (password == "admin") {
-    res.cookie("token", password).json({
+    res.cookie("token", password).send({
       email,
       token: password,
     });
@@ -58,7 +57,7 @@ const login = async (req, res) => {
     const passOk = bcrypt.compareSync(password, userInfo.password);
     if (passOk) {
       const token = jwt.sign({ id: userInfo._id, email }, secret);
-      res.cookie("token", token).json({
+      res.cookie("token", token).send({
         id: userInfo._id,
         email,
         token,
@@ -89,7 +88,7 @@ const adminSignup = async (req, res) => {
 
     const token = jwt.sign({ id: savedAdmin._id, email, name }, secret);
 
-    res.cookie("token", token).json({
+    res.cookie("token", token).send({
       id: savedAdmin._id,
       email,
       name,

@@ -239,11 +239,11 @@ const calculatePlayerLoss = async (userId) => {
 const getTermsOfServices = async (req, res) => {
   try {
     const admin = await Admin.findOne({});
-    res.status(201).json({
+    res.status(201).send({
       terms_of_service: admin.terms_of_service,
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).send({ error: error.message });
   }
 };
 

@@ -21,26 +21,26 @@ mongoose
 const port = 5000;
 const app = express();
 app.use(cookieParser());
-app.use(bodyParser.json({ extended: true }));
+app.use(bodyParser.send({ extended: true }));
 app.use(
   cors({
     origin: "http://localhost:3000",
     methods: "GET, POST, PATCH, DELETE",
     credentials: true,
-  })
+  }),
 );
 app.use("/image", express.static("image"));
 
 app.get("/user", (req, res) => {
   if (!req.cookies.token) {
-    return res.json({});
+    return res.send({});
   }
   const payload = jwt.verify(req.cookies.token, secret);
   User.findById(payload.id).then((userInfo) => {
     if (!userInfo) {
-      return res.json({});
+      return res.send({});
     }
-    res.json(userInfo);
+    res.send(userInfo);
   });
 });
 
@@ -59,12 +59,9 @@ app.post("/signup", async (req, res) => {
 
     const savedUser = await newUser.save();
 
-    const token = await jwt.sign(
-      { id: savedUser._id, email, name: savedUser.name },
-      secret
-    );
+    const token = await jwt.sign({ id: savedUser._id, email, name: savedUser.name }, secret);
 
-    res.cookie("token", token).json({
+    res.cookie("token", token).send({
       id: savedUser._id,
       email,
       name: savedUser.name,
@@ -89,7 +86,7 @@ app.post("/login", (req, res) => {
           console.log(err);
           res.sendStatus(500);
         } else {
-          res.cookie("token", token).json({
+          res.cookie("token", token).send({
             id: userInfo._id,
             email: userInfo.email,
             cart: userInfo.cart,

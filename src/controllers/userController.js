@@ -3,6 +3,7 @@ const User = require("../models/user");
 const Admin = require("../models/admin");
 const Token = require("../models/claim-token");
 const GameHistory = require("../models/game-history");
+const Ad = require("../models/ads");
 
 const {
   getPlayer,
@@ -21,7 +22,7 @@ const secret = "secret123";
 
 const getUser = async (req, res) => {
   if (typeof req.params.token !== "string" || req.params.token == "null") {
-    return res.json({});
+    return res.send({});
   } else {
     try {
       if (req.params.token == "admin") {
@@ -39,10 +40,10 @@ const getUser = async (req, res) => {
         const topGames = await getTop3Games();
 
         if (!adminData) {
-          return res.status(404).json({ message: "Admin data not found" });
+          return res.status(404).send({ message: "Admin data not found" });
         }
         const adminInfo = adminData.toObject({ virtuals: true });
-        return res.json({
+        return res.send({
           ...adminInfo,
           players: users,
           name: "John Carter",
@@ -63,10 +64,10 @@ const getUser = async (req, res) => {
         const payload = jwt.verify(req.params.token, secret);
         const user = await User.findById(payload.id);
         const userInfo = user.toObject({ virtuals: true });
-        if (!userInfo) return res.json({});
+        if (!userInfo) return res.send({});
         const player_deatils = await getPlayer(payload.id);
 
-        res.json({ ...player_deatils, ...userInfo });
+        res.send({ ...player_deatils, ...userInfo });
       }
     } catch (err) {
       console.error(err);
@@ -79,7 +80,7 @@ const claimToken = async (req, res) => {
   const { amount, userId, email, status, name } = req.body;
   try {
     const user = await User.findById(req.body.userId);
-    if (!user) return res.status(404).json({ error: "User not found" });
+    if (!user) return res.status(404).send({ error: "User not found" });
 
     const token = new Token({
       amount,
@@ -90,9 +91,9 @@ const claimToken = async (req, res) => {
     });
 
     await token.save();
-    res.status(201).json(token);
+    res.status(201).send(token);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).send({ error: error.message });
     console.log(error);
   }
 };
@@ -110,10 +111,19 @@ const editUser = async (req, res) => {
     if (req.file) user.profileImage = req.file.path;
 
     await user.save();
-    res.json(user);
+    res.send(user);
   } catch (error) {
     console.log(error);
   }
 };
 
-module.exports = { getUser, claimToken, editUser };
+const getAds = async (req, res) => {
+  try {
+    const ads = Ad.find({});
+    res.send(ads);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports = { getUser, claimToken, editUser, getAds };

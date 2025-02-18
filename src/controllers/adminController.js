@@ -24,10 +24,10 @@ const getNewSignups = async (req, res) => {
       createdAt: { $gte: startOfWeek },
     });
 
-    res.json(thisWeekSignups);
+    res.json({ count: thisWeekSignups });
   } catch (error) {
     console.error("Error calculating signups:", error);
-    res.json({ success: false, message: "Failed to calculate signups." });
+    res.send({ success: false, message: "Failed to calculate signups." });
   }
 };
 
@@ -35,12 +35,12 @@ const addPageView = async (req, res) => {
   try {
     let admin = await Admin.updateMany({}, { $inc: { page_views: 1 } });
 
-    res.status(200).json({
+    res.status(200).send({
       message: "Page views updated successfully",
     });
   } catch (error) {
     console.error("Error updating page views:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).send({ error: "Internal server error" });
   }
 };
 
@@ -53,10 +53,10 @@ const getAdminData = async (req, res) => {
 
     // // adminData.inactive_users = winRate.length;
     // // await adminData.save();
-    // res.status(200).json(winRate);
+    // res.status(200).send(winRate);
   } catch (error) {
     console.error("Error fetching admin data:", error);
-    res.status(500).json({ error: "Failed to fetch admin data" });
+    res.status(500).send({ error: "Failed to fetch admin data" });
   }
 };
 
@@ -64,10 +64,10 @@ const getPlayerData = async (req, res) => {
   try {
     const player_deatils = await getPlayer(req.params.id);
 
-    res.status(200).json(player_deatils);
+    res.status(200).send(player_deatils);
   } catch (error) {
     console.error("Error fetching admin data:", error);
-    res.status(500).json({ error: "Failed to fetch admin data" });
+    res.status(500).send({ error: "Failed to fetch admin data" });
   }
 };
 
@@ -75,7 +75,7 @@ const orderList = async (req, res) => {
   try {
     const orders = await Token.find();
 
-    res.json(orders);
+    res.send(orders);
   } catch (err) {
     console.error(err);
     res.sendStatus(500);
@@ -94,7 +94,7 @@ const approveToken = async (req, res) => {
 
     await user.save();
     await token.save();
-    res.status(201).json(token);
+    res.status(201).send(token);
   } catch (err) {
     console.error(err);
     res.sendStatus(500);
@@ -108,7 +108,7 @@ const giftToken = async (req, res) => {
     user.balance += amount;
 
     await user.save();
-    res.status(201).json({ user, amount });
+    res.status(201).send({ user, amount });
   } catch (err) {
     console.error(err);
     res.sendStatus(500);
@@ -121,14 +121,14 @@ const deleteUser = async (req, res) => {
     const deletedUser = await User.findByIdAndDelete(req.params.id);
 
     if (!deletedUser) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).send({ message: "User not found" });
     }
     console.log(deletedUser);
 
-    res.json({ message: "User deleted successfully" });
+    res.send({ message: "User deleted successfully" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Error deleting user" });
+    res.status(500).send({ message: "Error deleting user" });
   }
 };
 
@@ -142,7 +142,7 @@ const createAd = async (req, res) => {
       description,
     });
     const savedAd = await newAd.save();
-    res.json(savedAd);
+    res.send(savedAd);
   } catch (error) {
     console.log(error);
   }
@@ -152,7 +152,7 @@ const getAds = async (req, res) => {
   try {
     const ads = await Ad.find({});
 
-    res.json(ads);
+    res.send(ads);
   } catch (error) {
     console.log(error);
   }
@@ -162,7 +162,7 @@ const updateTermsOfServices = async (req, res) => {
   const { terms } = req.body;
   try {
     const admin = await Admin.updateMany({}, { terms_of_service: terms });
-    res.status(201).json({ message: "terms of services updated successfully" });
+    res.status(201).send({ message: "terms of services updated successfully" });
   } catch (error) {
     console.log(error);
   }
