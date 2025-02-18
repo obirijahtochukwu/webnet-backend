@@ -98,7 +98,8 @@ const claimToken = async (req, res) => {
 };
 
 const editUser = async (req, res) => {
-  const { name, email, profileImage, language, date_of_birth, userId } = req.body;
+  const { name, email, date_of_birth, userId } = req.body;
+  const profileImage = req.file;
 
   try {
     const user = await User.findById(userId);
@@ -106,7 +107,7 @@ const editUser = async (req, res) => {
     user.name = name;
     user.email = email;
     user.date_of_birth = date_of_birth;
-    user.profileImage = profileImage;
+    if (req.file) user.profileImage = req.file.path;
 
     await user.save();
     res.json(user);

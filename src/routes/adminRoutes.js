@@ -1,5 +1,5 @@
 const express = require("express");
-const multer = require("multer");
+const upload = require("../middleware/upload-file");
 const {
   getNewSignups,
   addPageView,
@@ -15,18 +15,6 @@ const {
 } = require("../controllers/adminController");
 
 const router = express.Router();
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/"); // Set the upload directory
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, file.fieldname + "-" + uniqueSuffix + "." + file.originalname.split(".").pop()); // Rename files to avoid conflicts
-  },
-});
-
-const upload = multer({ storage: storage });
 
 router.put("/add_page_view", addPageView);
 router.get("/new_signups", getNewSignups);
