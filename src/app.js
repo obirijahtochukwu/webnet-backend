@@ -13,7 +13,7 @@ app.use(cookieParser());
 app.use(bodyParser.json({ extended: true, limit: "10mb" }));
 app.use(corsConfig);
 // app.use("/image", express.static("image"));
-app.use("/uploads", express.static("uploads"));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use(authRoutes);
 app.use(userRoutes);
