@@ -23,14 +23,15 @@ const calculateTotalPayouts = (gameHistoryArray) => {
 
 const getNewSignups = async (req, res) => {
   const today = new Date();
-  const startOfWeek = new Date(today);
-  startOfWeek.setDate(today.getDate() - today.getDay());
+  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1); // Start of the current month
 
-  const thisWeekSignups = await User.countDocuments({
-    createdAt: { $gte: startOfWeek },
+  // Count documents created since the start of the month
+  const thisMonthSignups = await User.countDocuments({
+    createdAt: { $gte: startOfMonth },
   });
+  console.log(thisMonthSignups);
 
-  return thisWeekSignups;
+  return thisMonthSignups;
 };
 
 const calculateAdminProfit = async () => {
@@ -191,6 +192,7 @@ const calculateGameSportStart = async () => {
         winCount: { $sum: { $cond: [{ $eq: ["$result", "win"] }, 1, 0] } }, // Count wins
         lossCount: { $sum: { $cond: [{ $eq: ["$result", "loss"] }, 1, 0] } }, // Count losses
         uniquePlayers: { $addToSet: "$userId" }, // Unique players
+        session: { $count: {} },
       },
     },
     {
@@ -207,6 +209,7 @@ const calculateGameSportStart = async () => {
           $cond: [{ $eq: ["$totalPlays", 0] }, 0, { $multiply: [{ $divide: ["$lossCount", "$totalPlays"] }, 100] }],
         },
         activePlayers: { $size: "$uniquePlayers" }, // Count of unique players
+        session: 1,
       },
     },
   ]);
@@ -356,6 +359,45 @@ const getPlayer = async (userId) => {
   };
 };
 
+const getMonthlyUsers = async () => {
+  const monthlyUsers = await GameHistory.aggregate([
+    {
+      $group: {
+        _id: {
+          year: { $year: "$createdAt" }, // Extract year from createdAt
+          month: { $month: "$createdAt" }, // Extract month from createdAt
+        },
+        uniqueUsers: { $addToSet: "$userId" }, // Collect unique user IDs for each month
+      },
+    },
+    {
+      $project: {
+        month: "$_id.month",
+        year: "$_id.year",
+        totalUsers: { $size: "$uniqueUsers" }, // Count unique users for each month
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        totalMonths: { $sum: 1 }, // Count the number of months
+        totalUsers: { $sum: "$totalUsers" }, // Sum users across all months
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        averageUsers: { $divide: ["$totalUsers", "$totalMonths"] }, // Calculate average
+      },
+    },
+  ]);
+  console.log(monthlyUsers);
+
+  // If no data is found, return 0
+  const averageUsers = monthlyUsers.length > 0 ? monthlyUsers[0].averageUsers : 0;
+  return averageUsers;
+};
+
 module.exports = {
   calculateTotalPayouts,
   calculateAdminProfit,
@@ -370,4 +412,5 @@ module.exports = {
   getNewSignups,
   getTop3Games,
   getTermsOfServices,
+  getMonthlyUsers,
 };

@@ -11,7 +11,6 @@ const {
   updateTermsOfServices,
   giftToken,
   createAd,
-  getAds,
 } = require("../controllers/adminController");
 
 const router = express.Router();
@@ -21,7 +20,7 @@ router.get("/new_signups", getNewSignups);
 router.get("/admin-data", getAdminData);
 router.get("/order-list", orderList);
 router.get("/admin/player/:id", getPlayerData);
-router.get("/get-ads", getAds);
+// router.get("/get-ads", getAds);
 router.put("/approve-token", approveToken);
 router.put("/gift-token", giftToken);
 router.post("/create-ad", upload.single("image"), createAd);

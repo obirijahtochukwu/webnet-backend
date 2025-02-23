@@ -26,7 +26,6 @@ const getNewSignups = async (req, res) => {
 
     res.json({ count: thisWeekSignups });
   } catch (error) {
-    console.error("Error calculating signups:", error);
     res.send({ success: false, message: "Failed to calculate signups." });
   }
 };
@@ -143,16 +142,7 @@ const createAd = async (req, res) => {
     });
     const savedAd = await newAd.save();
     res.send(savedAd);
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const getAds = async (req, res) => {
-  try {
-    const ads = await Ad.find({});
-
-    res.send(ads);
+    console.log(savedAd);
   } catch (error) {
     console.log(error);
   }
@@ -179,5 +169,4 @@ module.exports = {
   updateTermsOfServices,
   giftToken,
   createAd,
-  getAds,
 };

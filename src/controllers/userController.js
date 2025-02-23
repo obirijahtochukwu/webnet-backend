@@ -16,6 +16,7 @@ const {
   calculatePlayersWinRate,
   getTop3Games,
   calculateAdminProfit,
+  getMonthlyUsers,
 } = require("../helpers");
 
 const secret = "secret123";
@@ -31,7 +32,11 @@ const getUser = async (req, res) => {
         const users = await User.find();
         const inactive_users = await getInactiveUsers();
         const topPlayers = await calculateTopPlayers();
+
         const new_signups = await getNewSignups();
+        const monthly_users = await getMonthlyUsers();
+        console.log("monthly_users");
+        console.log(monthly_users);
         const user_growth = await userGrowth();
         const game_and_sport_stats = await calculateGameSportStart();
         const average_bet_size = calculateAverageBetSize(gameHistory);
@@ -59,6 +64,7 @@ const getUser = async (req, res) => {
           players_win_rate,
           // players: topPlayers,
           user_growth,
+          monthly_users,
         });
       } else {
         const payload = jwt.verify(req.params.token, secret);
@@ -119,10 +125,13 @@ const editUser = async (req, res) => {
 
 const getAds = async (req, res) => {
   try {
-    const ads = Ad.find({});
+    const ads = await Ad.find({});
     res.send(ads);
+    console.log("ads");
+    console.log(ads);
   } catch (error) {
     console.log(error);
+    console.log("error");
   }
 };
 
