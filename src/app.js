@@ -1,5 +1,4 @@
 const express = require("express");
-const path = require("path");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const corsConfig = require("./middleware/corsConfig");
@@ -14,7 +13,7 @@ app.use(cookieParser());
 app.use(bodyParser.json({ extended: true, limit: "10mb" }));
 app.use(corsConfig);
 // app.use("/image", express.static("image"));
-app.use("/static", express.static(path.join(__dirname, "uploads")));
+app.use("/uploads", express.static("uploads"));
 
 app.use(authRoutes);
 app.use(userRoutes);
