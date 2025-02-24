@@ -119,6 +119,7 @@ const editUser = async (req, res) => {
     await user.save();
     res.send(user);
   } catch (error) {
+    res.send(error);
     console.log(error);
   }
 };
