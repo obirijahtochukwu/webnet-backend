@@ -1,4 +1,5 @@
 const multer = require("multer");
+const cloudinary = require("cloudinary").v2;
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -10,6 +11,16 @@ const storage = multer.diskStorage({
   },
 });
 
+const uploadToCloudinary = async (filePath) => {
+  try {
+    const result = await cloudinary.uploader.upload(filePath, { resource_type: "image" });
+    return result.secure_url;
+  } catch (err) {
+    console.error("Cloudinary upload error:", err);
+    throw err; // Re-throw the error to be handled by the caller
+  }
+};
+
 const upload = multer({ storage: storage });
 
-module.exports = upload;
+module.exports = { upload, uploadToCloudinary };

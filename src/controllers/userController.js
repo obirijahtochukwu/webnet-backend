@@ -4,6 +4,7 @@ const Admin = require("../models/admin");
 const Token = require("../models/claim-token");
 const GameHistory = require("../models/game-history");
 const Ad = require("../models/ads");
+const { uploadToCloudinary } = require("../middleware/upload-file");
 
 const {
   getPlayer,
@@ -107,20 +108,34 @@ const claimToken = async (req, res) => {
 const editUser = async (req, res) => {
   const { name, email, date_of_birth, userId } = req.body;
   const profileImage = req.file;
-
   try {
-    const user = await User.findById(userId);
+    let cloudinaryUrl = null;
 
+    if (profileImage?.path) {
+      try {
+        cloudinaryUrl = await uploadToCloudinary(profileImage.path);
+
+        const fs = require("fs");
+        fs.unlinkSync(profileImage.path);
+      } catch (err) {
+        return res.status(500).send("Error uploading to Cloudinary.");
+      }
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
     user.name = name;
     user.email = email;
     user.date_of_birth = date_of_birth;
-    if (req.file) user.profileImage = req.file.path;
+    if (profileImage) user.profileImage = cloudinaryUrl;
 
     await user.save();
     res.send(user);
   } catch (error) {
-    res.send(error);
-    console.log(error);
+    console.error("Error in editUser:", error);
+    res.status(500).send("Internal Server Error");
   }
 };
 

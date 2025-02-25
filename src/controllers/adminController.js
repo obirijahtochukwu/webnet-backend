@@ -13,6 +13,7 @@ const {
   getInactiveUsers,
   getPlayer,
 } = require("../helpers");
+const { uploadToCloudinary } = require("../middleware/upload-file");
 
 const getNewSignups = async (req, res) => {
   try {
@@ -135,8 +136,9 @@ const createAd = async (req, res) => {
   const { title, description } = req.body;
   const image = req.file;
   try {
+    const cloudinaryUrl = await uploadToCloudinary(image.path);
     const newAd = new Ad({
-      image: image.path,
+      image: cloudinaryUrl,
       title,
       description,
     });

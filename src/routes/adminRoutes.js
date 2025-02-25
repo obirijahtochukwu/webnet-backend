@@ -1,5 +1,5 @@
 const express = require("express");
-const upload = require("../middleware/upload-file");
+const { upload } = require("../middleware/upload-file");
 const {
   getNewSignups,
   addPageView,
