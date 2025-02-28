@@ -20,8 +20,6 @@ const {
   getMonthlyUsers,
 } = require("../helpers");
 
-const secret = process.env.JWT_SECRET;
-
 const getUser = async (req, res) => {
   if (typeof req.params.token !== "string" || req.params.token == "null") {
     return res.send({});
@@ -36,8 +34,6 @@ const getUser = async (req, res) => {
 
         const new_signups = await getNewSignups();
         const monthly_users = await getMonthlyUsers();
-        console.log("monthly_users");
-        console.log(monthly_users);
         const user_growth = await userGrowth();
         const game_and_sport_stats = await calculateGameSportStart();
         const average_bet_size = calculateAverageBetSize(gameHistory);
@@ -68,7 +64,7 @@ const getUser = async (req, res) => {
           monthly_users,
         });
       } else {
-        const payload = jwt.verify(req.params.token, secret);
+        const payload = jwt.verify(req.params.token, process.env.JWT_SECRET);
         const user = await User.findById(payload.id);
         const userInfo = user.toObject({ virtuals: true });
         if (!userInfo) return res.send({});
@@ -143,8 +139,6 @@ const getAds = async (req, res) => {
   try {
     const ads = await Ad.find({});
     res.send(ads);
-    console.log("ads");
-    console.log(ads);
   } catch (error) {
     console.log(error);
     console.log("error");

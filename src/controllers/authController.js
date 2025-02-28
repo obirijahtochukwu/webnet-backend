@@ -3,8 +3,6 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const Admin = require("../models/admin");
 
-const secret = process.env.JWT_SECRET;
-
 const signup = async (req, res) => {
   try {
     const { name, email, password, language, date_of_birth } = req.body;
@@ -25,7 +23,7 @@ const signup = async (req, res) => {
     });
     const savedUser = await newUser.save();
 
-    const token = jwt.sign({ id: savedUser._id, email, name }, secret);
+    const token = jwt.sign({ id: savedUser._id, email, name }, process.env.JWT_SECRET);
 
     res.cookie("token", token).send({
       id: savedUser._id,
@@ -56,7 +54,7 @@ const login = async (req, res) => {
 
     const passOk = bcrypt.compareSync(password, userInfo.password);
     if (passOk) {
-      const token = jwt.sign({ id: userInfo._id, email }, secret);
+      const token = jwt.sign({ id: userInfo._id, email }, process.env.JWT_SECRET);
       res.cookie("token", token).send({
         id: userInfo._id,
         email,
@@ -86,7 +84,7 @@ const adminSignup = async (req, res) => {
     });
     const savedAdmin = await newAdmin.save();
 
-    const token = jwt.sign({ id: savedAdmin._id, email, name }, secret);
+    const token = jwt.sign({ id: savedAdmin._id, email, name }, process.env.JWT_SECRET);
 
     res.cookie("token", token).send({
       id: savedAdmin._id,
