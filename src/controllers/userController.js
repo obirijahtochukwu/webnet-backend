@@ -20,7 +20,7 @@ const {
   getMonthlyUsers,
 } = require("../helpers");
 
-const secret = "secret123";
+const secret = process.env.JWT_SECRET;
 
 const getUser = async (req, res) => {
   if (typeof req.params.token !== "string" || req.params.token == "null") {

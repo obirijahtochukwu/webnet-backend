@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const URL = "mongodb://localhost:27017/" && "mongodb+srv://obj:obj123,.@cluster0.nfbux.mongodb.net/";
+const URL = process.env.DATABASE_URL;
 
 const connectDB = async () => {
   try {

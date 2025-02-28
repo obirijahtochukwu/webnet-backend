@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const Admin = require("../models/admin");
 
-const secret = "secret123";
+const secret = process.env.JWT_SECRET;
 
 const signup = async (req, res) => {
   try {

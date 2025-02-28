@@ -8,7 +8,7 @@ const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const path = require("path");
 const User = require("./models/user.js");
-const secret = "secret123";
+const secret = process.env.JWT_SECRET;
 
 const URL = "mongodb://localhost:27017";
 mongoose
