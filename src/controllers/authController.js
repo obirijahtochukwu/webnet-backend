@@ -41,7 +41,7 @@ const signup = async (req, res) => {
 
 const login = async (req, res) => {
   const { email, password } = req.body;
-  if (password == "admin") {
+  if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
     res.cookie("token", password).send({
       email,
       token: password,

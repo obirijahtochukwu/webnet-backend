@@ -25,7 +25,7 @@ const getUser = async (req, res) => {
     return res.send({});
   } else {
     try {
-      if (req.params.token == "admin") {
+      if (req.params.token == process.env.ADMIN_PASSWORD) {
         const adminData = await Admin.findOne({});
         const gameHistory = await GameHistory.find();
         const users = await User.find();
@@ -35,6 +35,8 @@ const getUser = async (req, res) => {
         const new_signups = await getNewSignups();
         const monthly_users = await getMonthlyUsers();
         const user_growth = await userGrowth();
+        console.log(user_growth);
+
         const game_and_sport_stats = await calculateGameSportStart();
         const average_bet_size = calculateAverageBetSize(gameHistory);
         const players_win_rate = calculatePlayersWinRate(gameHistory);
@@ -59,7 +61,6 @@ const getUser = async (req, res) => {
           topGames,
           topPlayers,
           players_win_rate,
-          // players: topPlayers,
           user_growth,
           monthly_users,
         });
@@ -144,5 +145,13 @@ const getAds = async (req, res) => {
     console.log("error");
   }
 };
+const getGameStats = async (req, res) => {
+  try {
+    const result = await calculateGameSportStart();
+    res.send(result);
+  } catch (error) {
+    res.send(error);
+  }
+};
 
-module.exports = { getUser, claimToken, editUser, getAds };
+module.exports = { getUser, claimToken, editUser, getAds, getGameStats };

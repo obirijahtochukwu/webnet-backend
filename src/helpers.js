@@ -150,7 +150,7 @@ const userGrowth = async () => {
       $project: {
         month: {
           $arrayElemAt: [
-            months,
+            ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
             { $subtract: ["$_id", 1] }, // Convert month number to month name
           ],
         },
