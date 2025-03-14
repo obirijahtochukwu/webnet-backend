@@ -145,6 +145,7 @@ const getAds = async (req, res) => {
     console.log("error");
   }
 };
+
 const getGameStats = async (req, res) => {
   try {
     const result = await calculateGameSportStart();

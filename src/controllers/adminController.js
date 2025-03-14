@@ -133,12 +133,13 @@ const deleteUser = async (req, res) => {
 };
 
 const createAd = async (req, res) => {
-  const { title, description } = req.body;
+  const { title, description, link } = req.body;
   const image = req.file;
   try {
     const cloudinaryUrl = await uploadToCloudinary(image.path);
     const newAd = new Ad({
       image: cloudinaryUrl,
+      link,
       title,
       description,
     });
@@ -147,6 +148,23 @@ const createAd = async (req, res) => {
     console.log(savedAd);
   } catch (error) {
     console.log(error);
+  }
+};
+
+const deleteAd = async (req, res) => {
+  try {
+    // Find and delete the user document
+    const deletedAd = await Ad.findByIdAndDelete(req.params.id);
+
+    if (!deletedAd) {
+      return res.status(404).send({ message: "Ad not found" });
+    }
+    console.log(deletedAd);
+
+    res.send({ message: "Ad deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: "Error deleting user" });
   }
 };
 
@@ -171,4 +189,5 @@ module.exports = {
   updateTermsOfServices,
   giftToken,
   createAd,
+  deleteAd,
 };

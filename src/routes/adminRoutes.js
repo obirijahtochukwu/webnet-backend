@@ -11,6 +11,7 @@ const {
   updateTermsOfServices,
   giftToken,
   createAd,
+  deleteAd,
 } = require("../controllers/adminController");
 
 const router = express.Router();
@@ -25,5 +26,6 @@ router.put("/gift-token", giftToken);
 router.post("/create-ad", upload.single("image"), createAd);
 router.put("/update-terms-of-ervices", updateTermsOfServices);
 router.delete("/delete-user/:id", deleteUser);
+router.delete("/delete-ad/:id", deleteAd);
 
 module.exports = router;
