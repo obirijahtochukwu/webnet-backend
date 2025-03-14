@@ -105,29 +105,33 @@ const claimToken = async (req, res) => {
 const editUser = async (req, res) => {
   const { name, email, date_of_birth, userId } = req.body;
   const profileImage = req.file;
+
   try {
     let cloudinaryUrl = null;
 
-    if (profileImage?.path) {
+    // If a profile image is uploaded, stream it directly to Cloudinary
+    if (profileImage?.buffer) {
       try {
-        cloudinaryUrl = await uploadToCloudinary(profileImage.path);
-
-        const fs = require("fs");
-        fs.unlinkSync(profileImage.path);
+        cloudinaryUrl = await uploadToCloudinary(profileImage.buffer);
       } catch (err) {
+        console.error("Error uploading to Cloudinary:", err);
         return res.status(500).send("Error uploading to Cloudinary.");
       }
     }
 
+    // Find the user by ID
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).send("User not found");
     }
+
+    // Update user fields
     user.name = name;
     user.email = email;
     user.date_of_birth = date_of_birth;
     if (profileImage) user.profileImage = cloudinaryUrl;
 
+    // Save the updated user
     await user.save();
     res.send(user);
   } catch (error) {
