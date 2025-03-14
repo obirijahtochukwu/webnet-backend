@@ -16,7 +16,7 @@ const uploadToCloudinary = async (filePath) => {
     const result = await cloudinary.uploader.upload(filePath, { resource_type: "image" });
     return result.secure_url;
   } catch (err) {
-    console.error("Cloudinary upload error:", err);
+    res.status(500).json({ msg: err });
     throw err; // Re-throw the error to be handled by the caller
   }
 };
