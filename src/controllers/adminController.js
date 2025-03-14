@@ -148,6 +148,7 @@ const createAd = async (req, res) => {
     console.log(savedAd);
   } catch (error) {
     console.log(error);
+    res.send(error);
   }
 };
 
