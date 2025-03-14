@@ -134,18 +134,17 @@ const deleteUser = async (req, res) => {
 
 const createAd = async (req, res) => {
   const { title, description, link } = req.body;
-  const image = req.file;
+  const file = req.file;
 
-  // Check if the file exists
-  if (!image) {
-    return res.status(400).send("No file uploaded.");
+  if (!file) {
+    return res.status(400).json({ msg: "No file uploaded." });
   }
 
   try {
-    // Upload the image to Cloudinary
-    const cloudinaryUrl = await uploadToCloudinary(image.path);
+    // Upload the file buffer to Cloudinary
+    const cloudinaryUrl = await uploadToCloudinary(file.buffer);
 
-    // Create a new ad
+    // Save the ad to the database
     const newAd = new Ad({
       image: cloudinaryUrl,
       link,
@@ -153,14 +152,11 @@ const createAd = async (req, res) => {
       description,
     });
 
-    // Save the ad to the database
     const savedAd = await newAd.save();
-
-    // Send the response
-    res.status(201).send(savedAd);
-  } catch (error) {
-    console.error("Error creating ad:", error);
-    res.status(500).send("Internal Server Error");
+    res.status(201).json(savedAd);
+  } catch (err) {
+    console.error("Error creating ad:", err);
+    res.status(500).json({ msg: "Internal Server Error" });
   }
 };
 
