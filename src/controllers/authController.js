@@ -20,6 +20,8 @@ const signup = async (req, res) => {
       name,
       language,
       date_of_birth,
+      profileImage:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzfChb0sWhvAL9PUI87tXjijFzMvyWic01nXPGCeu6DI3K2OdXOACu09gXd0WGcHYIEc8&usqp=CAU",
     });
     const savedUser = await newUser.save();
 
